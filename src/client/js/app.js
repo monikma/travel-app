@@ -21,9 +21,6 @@ function performAction(event) {
     }
 }
 
-/* Function called by event listener */
-document.getElementById('generate').addEventListener('click', performAction);
-
 /* Function to GET Web API Data*/
 const getTemp = async (url, zip, key) => {
     const response = await fetch(url + zip + key);
@@ -104,3 +101,5 @@ function internalError() {
 function error(msg) {
     alert(msg);
 }
+
+export { performAction }
