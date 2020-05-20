@@ -106,3 +106,4 @@ dist
 /.idea/travel-app.iml
 /.idea/vcs.xml
 /.idea/workspace.xml
+/package-lock.json
