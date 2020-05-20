@@ -1,7 +1,6 @@
 {
   "name": "travel-app",
   "version": "1.0.0",
-  "main": "index.html",
   "scripts": {
     "start": "node src/server/server.js"
   },
