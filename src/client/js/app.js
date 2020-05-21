@@ -3,22 +3,29 @@ const apiKey = '&username=monikma'
 const postalCodesURL = 'http://api.geonames.org/postalCodeSearch?placename='
 const baseURL = 'http://localhost:8000/trips'
 
+function init(){
+    // init UI
+    getData(baseURL).then(data => updateUi(data))
+}
+
 // Event listener to add function to existing HTML DOM element
 function addTripClicked(event) {
     const city = document.getElementById('city').value
-    const feelings = document.getElementById('feelings').value
-    if (city && feelings) {
-        getPostalCode(postalCodesURL, city, apiKey)
-            .then(postalCode => createTrip(baseURL, {
-                postalCode: postalCode,
-                feelings: feelings,
-                date: getCurrentDate()
-            }))
-            .then(() => getData(baseURL))
-            .then(data => updateUi(data))
-    } else {
-        alert("You need to provide both the city and how you are feeling.")
+    const date = document.getElementById('date').value
+
+    if (!city || !date){
+        alert("You need to provide both the city and the date of the trip.")
+        return
     }
+
+    getPostalCode(postalCodesURL, city, apiKey)
+        .then(postalCode => createTrip(baseURL, {
+            city: city,
+            postalCode: postalCode,
+            date: date
+        }))
+        .then(() => getData(baseURL))
+        .then(data => updateUi(data))
 }
 
 /* Function to GET Web API Data*/
@@ -85,26 +92,28 @@ const getData = async (url) => {
 /* Function to update UI*/
 const updateUi = async (trips) => {
     const entryHolder = document.getElementById("entryHolder")
-    entryHolder.firstElementChild.remove()
+    const previousData = entryHolder.firstElementChild
+    if (previousData) previousData.remove()
     const fragment = document.createDocumentFragment()
     trips.forEach(function(data){
         const tripCard = document.createElement("div")
         fragment.appendChild(tripCard)
 
         const date = document.createElement("div")
-        date.setAttribute("id", "date")
-        date.innerHTML = data.date
+        date.innerHTML = "Date: " + data.date
         tripCard.appendChild(date)
 
-        const weather = document.createElement("div")
-        weather.setAttribute("id", "temp")
-        weather.innerHTML = data.postalCode
-        tripCard.appendChild(weather)
+        const countdown = document.createElement("div")
+        countdown.innerHTML = "In " + getCountdown(data.date) + " days"
+        tripCard.appendChild(countdown)
 
-        const feelings = document.createElement("div")
-        feelings.setAttribute("id", "content")
-        feelings.innerHTML = data.feelings
-        tripCard.appendChild(feelings)
+        const city = document.createElement("div")
+        city.innerHTML = "To: " + data.city
+        tripCard.appendChild(city)
+
+        const weather = document.createElement("div")
+        weather.innerHTML = "Weather: " + data.weather
+        tripCard.appendChild(weather)
     })
     entryHolder.appendChild(fragment)
 
@@ -118,6 +127,10 @@ function getCurrentDate() {
     return (d.getMonth() + 1) + '.' + d.getDate() + '.' + d.getFullYear()
 }
 
+function getCountdown(strDate){
+    return 1209 //TODO
+}
+
 // Print error
 function internalError() {
     error("Sorry there was a problem completing your request, please try later.")
@@ -127,4 +140,4 @@ function error(msg) {
     alert(msg)
 }
 
-export { addTripClicked }
+export { addTripClicked, init }
