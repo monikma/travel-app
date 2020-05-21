@@ -90,8 +90,12 @@ const getData = async (url) => {
 /* Function to update UI*/
 const updateUi = async (trips) => {
     const entryHolder = document.getElementById("entryHolder")
-    const previousData = entryHolder.firstElementChild
-    if (previousData) previousData.remove()
+    let previousData = entryHolder.firstElementChild
+    // clear it first
+    while (previousData) {
+        previousData.remove()
+        previousData = entryHolder.firstElementChild
+    }
     const fragment = document.createDocumentFragment()
     trips.forEach(function(data){
         const tripCard = document.createElement("div")
