@@ -1,8 +1,13 @@
 // Personal API Key for OpenWeatherMap API
 const postalCodesUsername = '&username=monikma'
 const postalCodesURL = 'http://api.geonames.org/postalCodeSearch?placename='
+
 const weatherURL = 'http://api.weatherbit.io/v2.0/history/daily'
 const weatherApiKey= '?key=77732ac5c3e04125a28209f311634d7d'
+
+const pixabayURL = 'https://pixabay.com/api/?image_type=photo&q='
+const pixabayApiKey= '&key=16662631-9cbc21132648511fe8b2b6986'
+
 const baseURL = 'http://localhost:8000/trips'
 
 function init(){
@@ -28,6 +33,7 @@ function addTripClicked(event) {
             weatherApiKey))
         .then(weatherResult => createTrip(baseURL, {
             city: city,
+            country: weatherResult.country,
             postalCode: weatherResult.postalCode,
             weather_max: weatherResult.weather_max,
             weather_min: weatherResult.weather_min,
@@ -51,9 +57,13 @@ const getPostalCode = async (url, city, key) => {
             internalError()
         } else {
             const newData = await response.json()
-            return {
-                "code" : newData.postalCodes[0].postalCode,
-                "country" : newData.postalCodes[0].countryCode
+            if(newData.postalCodes.length>0){
+                return {
+                    "code" : newData.postalCodes[0].postalCode,
+                    "country" : newData.postalCodes[0].countryCode
+                }
+            }else{
+                alert("Could not find such city")
             }
         }
     } catch (error) {
@@ -76,7 +86,27 @@ const getWeather = async (url, postalCode, country, date, key) => {
             return {
                 "weather_max" : newData.data[0].max_temp,
                 "weather_min" : newData.data[0].min_temp,
-                "postalCode" : postalCode
+                "postalCode" : postalCode,
+                "country" : country
+            }
+        }
+    } catch (error) {
+        console.log("error", error)
+        internalError()
+    }
+}
+
+const fetchImage = async (url, city, key) => {
+    const response = await fetch(url + city + key)
+    try {
+        if (response.status != 200) {
+            internalError()
+        } else {
+            const newData = await response.json()
+            if(newData.total>0){
+                return newData.hits[0].previewURL
+            } else {
+                return null
             }
         }
     } catch (error) {
@@ -100,6 +130,9 @@ const createTrip = async (url, data) => {
     try {
         if (response.status != 201) {
             internalError()
+        } else {
+            document.getElementById('city').value = ""
+            document.getElementById('date').value = ""
         }
     } catch (error) {
         console.log("error", error)
@@ -142,7 +175,7 @@ const updateUi = async (trips) => {
         tripCard.appendChild(countdown)
 
         const city = document.createElement("div")
-        city.innerHTML = "To: " + data.city
+        city.innerHTML = "To: " + data.city + " in " + data.country
         tripCard.appendChild(city)
 
         const zip = document.createElement("div")
@@ -152,6 +185,12 @@ const updateUi = async (trips) => {
         const weather = document.createElement("div")
         weather.innerHTML = "Weather: high " + data.weather_max + ", low " + data.weather_min
         tripCard.appendChild(weather)
+
+        fetchImage(pixabayURL, data.city, pixabayApiKey).then(url => {
+            const img = document.createElement("img")
+            img.setAttribute("src", url)
+            tripCard.appendChild(img)
+        })
 
     })
     entryHolder.appendChild(fragment)
