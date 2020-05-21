@@ -95,6 +95,7 @@ const updateUi = async (trips) => {
     const fragment = document.createDocumentFragment()
     trips.forEach(function(data){
         const tripCard = document.createElement("div")
+        tripCard.setAttribute("class", "trip")
         fragment.appendChild(tripCard)
 
         const date = document.createElement("div")
@@ -113,16 +114,15 @@ const updateUi = async (trips) => {
         zip.innerHTML = "Postal code: " + data.postalCode
         tripCard.appendChild(zip)
 
-        const weather = document.createElement("div")
-        weather.innerHTML = "Weather: high " + data.weather_max + ", low " + data.weather_min
-        tripCard.appendChild(weather)
-
         fetchImage(data.city, data.country).then(url => {
             const img = document.createElement("img")
             img.setAttribute("src", url)
             tripCard.appendChild(img)
-        })
 
+            const weather = document.createElement("div")
+            weather.innerHTML = "Average weather: high " + data.weather_max + ", low " + data.weather_min
+            tripCard.appendChild(weather)
+        })
     })
     entryHolder.appendChild(fragment)
 

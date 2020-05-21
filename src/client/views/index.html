@@ -4,28 +4,30 @@
     <meta charset="UTF-8">
     <title>Weather Journal</title>
     <link href="https://fonts.googleapis.com/css?family=Oswald:400,600,700|Ranga:400,700&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width" />
+    <meta charset="UTF-8">
 </head>
 <body>
 <div id="app">
-    <div class="holder headline">
-        <h1>Weather Journal App</h1>
-    </div>
-    <div class="holder city">
+    <section id="section-title">
+        <h1>Travel App</h1>
+    </section>
+    <section id="section-city">
         <label for="city">Destination city</label>
         <input type="text" id="city" placeholder="enter city name here">
-    </div>
-    <div class="holder feel">
+    </section>
+    <section id="section-date">
         <label for="date">Trip Date</label>
         <input class="myInput" type="date" id="date" placeholder="Enter your date here"/>
-    </div>
-    <div>
+    </section>
+    <section id="section-create">
         <button id="generate" type="submit">Create trip</button>
-    </div>
-    <div class="holder entry">
-        <div class="title">Planned trips:</div>
+    </section>
+    <section id="section-trips">
+        <h2>Planned trips:</h2>
         <div id="entryHolder">
         </div>
-    </div>
+    </section>
 </div>
 <script>
     // Check that service workers are supported
