@@ -1,6 +1,8 @@
 // Personal API Key for OpenWeatherMap API
-const apiKey = '&username=monikma'
+const postalCodesUsername = '&username=monikma'
 const postalCodesURL = 'http://api.geonames.org/postalCodeSearch?placename='
+const weatherURL = 'http://api.weatherbit.io/v2.0/history/daily'
+const weatherApiKey= '?key=77732ac5c3e04125a28209f311634d7d'
 const baseURL = 'http://localhost:8000/trips'
 
 function init(){
@@ -18,17 +20,19 @@ function addTripClicked(event) {
         return
     }
 
-    getPostalCode(postalCodesURL, city, apiKey)
-        .then(postalCode => createTrip(baseURL, {
+    getPostalCode(postalCodesURL, city, postalCodesUsername)
+        .then(postalCodeResult => getWeather(weatherURL, postalCodeResult.code, postalCodeResult.country, date, weatherApiKey))
+        .then(weatherResult => createTrip(baseURL, {
             city: city,
-            postalCode: postalCode,
+            postalCode: weatherResult.postalCode,
+            weather_max: weatherResult.weather_max,
+            weather_min: weatherResult.weather_min,
             date: date
         }))
         .then(() => getData(baseURL))
         .then(data => updateUi(data))
 }
 
-/* Function to GET Web API Data*/
 const getPostalCode = async (url, city, key) => {
     const response = await fetch(url + city + key, {
       mode: 'cors', // no-cors, *cors, same-origin
@@ -43,7 +47,33 @@ const getPostalCode = async (url, city, key) => {
             internalError()
         } else {
             const newData = await response.json()
-            return newData.postalCodes[0].postalCode
+            return {
+                "code" : newData.postalCodes[0].postalCode,
+                "country" : newData.postalCodes[0].countryCode
+            }
+        }
+    } catch (error) {
+        console.log("error", error)
+        internalError()
+    }
+}
+
+const getWeather = async (url, postalCode, country, date, key) => {
+    const response = await fetch(url + key +
+        "&start_date=" + date +
+        "&end_date=" + '2018-07-23' +
+        "&postal_code=" + postalCode +
+        "&country=" + country)
+    try {
+        if (response.status != 200) {
+            internalError()
+        } else {
+            const newData = await response.json()
+            return {
+                "weather_max" : newData.data[0].max_temp,
+                "weather_min" : newData.data[0].min_temp,
+                "postalCode" : postalCode
+            }
         }
     } catch (error) {
         console.log("error", error)
@@ -111,9 +141,14 @@ const updateUi = async (trips) => {
         city.innerHTML = "To: " + data.city
         tripCard.appendChild(city)
 
+        const zip = document.createElement("div")
+        zip.innerHTML = "Postal code: " + data.postalCode
+        tripCard.appendChild(zip)
+
         const weather = document.createElement("div")
-        weather.innerHTML = "Weather: " + data.weather
+        weather.innerHTML = "Weather: high " + data.weather_max + ", low " + data.weather_min
         tripCard.appendChild(weather)
+
     })
     entryHolder.appendChild(fragment)
 
