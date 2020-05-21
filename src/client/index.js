@@ -1,5 +1,5 @@
-import { addTripClicked } from './js/app.js'
-import { init } from './js/app.js'
+import { addTrip } from './js/app.js'
+import { initUi } from './js/app.js'
 import './styles/main.scss'
 import './js/app.js'
 
@@ -7,9 +7,9 @@ console.log("Built with Webpack");
 
 // exports for 'Client' library:
 export {
-    addTripClicked, init
+    addTrip, initUi
 }
 
 /* Function called by event listener */
-document.getElementById('generate').addEventListener('click', addTripClicked);
-document.addEventListener('DOMContentLoaded', init)
+document.getElementById('generate').addEventListener('click', addTrip);
+document.addEventListener('DOMContentLoaded', initUi)
