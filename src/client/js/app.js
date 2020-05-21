@@ -1,12 +1,12 @@
 // Personal API Key for OpenWeatherMap API
-const apiKey = '&appid=a8e0f9e6690428bc6ff0a514cb07c017';
-const weatherURL = 'http://api.openweathermap.org/data/2.5/weather?zip=';
-const baseURL = 'http://localhost:8000/projectData';
+const apiKey = '&appid=a8e0f9e6690428bc6ff0a514cb07c017'
+const weatherURL = 'http://api.openweathermap.org/data/2.5/weather?zip='
+const baseURL = 'http://localhost:8000/trips'
 
 // Event listener to add function to existing HTML DOM element
 function performAction(event) {
-    const zip = document.getElementById('zip').value;
-    const feelings = document.getElementById('feelings').value;
+    const zip = document.getElementById('zip').value
+    const feelings = document.getElementById('feelings').value
     if (zip && feelings) {
         getTemp(weatherURL, zip, apiKey)
             .then(temp => postData(baseURL, {
@@ -15,27 +15,27 @@ function performAction(event) {
                 date: getCurrentDate()
             }))
             .then(() => getData(baseURL))
-            .then(data => updateUi(data));
+            .then(data => updateUi(data))
     } else {
-        alert("You need to provide both your Zip code and how you are feeling.");
+        alert("You need to provide both your Zip code and how you are feeling.")
     }
 }
 
 /* Function to GET Web API Data*/
 const getTemp = async (url, zip, key) => {
-    const response = await fetch(url + zip + key);
+    const response = await fetch(url + zip + key)
     try {
         if (response.status == 404) {
             error("The zip code could not be recognized, please enter a valid US zip code.")
         } else if (response.status != 200) {
-            internalError();
+            internalError()
         } else {
-            const newData = await response.json();
-            return newData.main.temp;
+            const newData = await response.json()
+            return newData.main.temp
         }
     } catch (error) {
-        console.log("error", error);
-        internalError();
+        console.log("error", error)
+        internalError()
     }
 }
 
@@ -49,57 +49,77 @@ const postData = async (url, data) => {
         },
         // Body data type must match "Content-Type" header
         body: JSON.stringify(data),
-    });
+    })
 
     try {
         if (response.status != 201) {
-            internalError();
+            internalError()
         }
     } catch (error) {
-        console.log("error", error);
-        internalError();
+        console.log("error", error)
+        internalError()
     }
 }
 
 /* Function to GET Project Data */
 const getData = async (url) => {
-    const response = await fetch(url);
+    const response = await fetch(url)
     try {
         if (response.status != 200) {
-            internalError();
+            internalError()
         } else {
-            const newData = await response.json();
-            return newData;
+            const newData = await response.json()
+            return newData
         }
     } catch (error) {
-        console.log("error", error);
-        internalError();
+        console.log("error", error)
+        internalError()
     }
 }
 
 /* Function to update UI*/
-const updateUi = async (data) => {
-    const entryHolder = document.getElementById("entryHolder");
-    entryHolder.querySelector("#date").innerHTML = data.date;
-    entryHolder.querySelector("#temp").innerHTML = data.weather;
-    entryHolder.querySelector("#content").innerHTML = data.feelings;
+const updateUi = async (trips) => {
+    const entryHolder = document.getElementById("entryHolder")
+    entryHolder.firstElementChild.remove()
+    const fragment = document.createDocumentFragment()
+    trips.forEach(function(data){
+        const tripCard = document.createElement("div")
+        fragment.appendChild(tripCard)
+
+        const date = document.createElement("div")
+        date.setAttribute("id", "date")
+        date.innerHTML = data.date
+        tripCard.appendChild(date)
+
+        const weather = document.createElement("div")
+        weather.setAttribute("id", "temp")
+        weather.innerHTML = data.weather
+        tripCard.appendChild(weather)
+
+        const feelings = document.createElement("div")
+        feelings.setAttribute("id", "content")
+        feelings.innerHTML = data.feelings
+        tripCard.appendChild(feelings)
+    })
+    entryHolder.appendChild(fragment)
+
 }
 
 /* Global Variables */
 
 // Create a new date instance dynamically with JS
 function getCurrentDate() {
-    let d = new Date();
-    return (d.getMonth() + 1) + '.' + d.getDate() + '.' + d.getFullYear();
+    let d = new Date()
+    return (d.getMonth() + 1) + '.' + d.getDate() + '.' + d.getFullYear()
 }
 
 // Print error
 function internalError() {
-    error("Sorry there was a problem completing your request, please try later.");
+    error("Sorry there was a problem completing your request, please try later.")
 }
 
 function error(msg) {
-    alert(msg);
+    alert(msg)
 }
 
 export { performAction }
