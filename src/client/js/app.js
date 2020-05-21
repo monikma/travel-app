@@ -1,37 +1,42 @@
 // Personal API Key for OpenWeatherMap API
-const apiKey = '&appid=a8e0f9e6690428bc6ff0a514cb07c017'
-const weatherURL = 'http://api.openweathermap.org/data/2.5/weather?zip='
+const apiKey = '&username=monikma'
+const postalCodesURL = 'http://api.geonames.org/postalCodeSearch?placename='
 const baseURL = 'http://localhost:8000/trips'
 
 // Event listener to add function to existing HTML DOM element
-function performAction(event) {
-    const zip = document.getElementById('zip').value
+function addTripClicked(event) {
+    const city = document.getElementById('city').value
     const feelings = document.getElementById('feelings').value
-    if (zip && feelings) {
-        getTemp(weatherURL, zip, apiKey)
-            .then(temp => postData(baseURL, {
-                weather: temp,
+    if (city && feelings) {
+        getPostalCode(postalCodesURL, city, apiKey)
+            .then(postalCode => createTrip(baseURL, {
+                postalCode: postalCode,
                 feelings: feelings,
                 date: getCurrentDate()
             }))
             .then(() => getData(baseURL))
             .then(data => updateUi(data))
     } else {
-        alert("You need to provide both your Zip code and how you are feeling.")
+        alert("You need to provide both the city and how you are feeling.")
     }
 }
 
 /* Function to GET Web API Data*/
-const getTemp = async (url, zip, key) => {
-    const response = await fetch(url + zip + key)
+const getPostalCode = async (url, city, key) => {
+    const response = await fetch(url + city + key, {
+      mode: 'cors', // no-cors, *cors, same-origin
+      cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
+      //credentials: 'same-origin', // include, *same-origin, omit
+      headers: {
+        'Accept': 'application/json'
+      }
+    })
     try {
-        if (response.status == 404) {
-            error("The zip code could not be recognized, please enter a valid US zip code.")
-        } else if (response.status != 200) {
+        if (response.status != 200) {
             internalError()
         } else {
             const newData = await response.json()
-            return newData.main.temp
+            return newData.postalCodes[0].postalCode
         }
     } catch (error) {
         console.log("error", error)
@@ -40,7 +45,7 @@ const getTemp = async (url, zip, key) => {
 }
 
 /* Function to POST data */
-const postData = async (url, data) => {
+const createTrip = async (url, data) => {
     const response = await fetch(url, {
         method: 'POST',
         credentials: 'same-origin',
@@ -72,7 +77,7 @@ const getData = async (url) => {
             return newData
         }
     } catch (error) {
-        console.log("error", error)
+        console.log(error)
         internalError()
     }
 }
@@ -93,7 +98,7 @@ const updateUi = async (trips) => {
 
         const weather = document.createElement("div")
         weather.setAttribute("id", "temp")
-        weather.innerHTML = data.weather
+        weather.innerHTML = data.postalCode
         tripCard.appendChild(weather)
 
         const feelings = document.createElement("div")
@@ -122,4 +127,4 @@ function error(msg) {
     alert(msg)
 }
 
-export { performAction }
+export { addTripClicked }
