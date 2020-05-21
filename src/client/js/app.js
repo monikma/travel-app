@@ -21,7 +21,11 @@ function addTripClicked(event) {
     }
 
     getPostalCode(postalCodesURL, city, postalCodesUsername)
-        .then(postalCodeResult => getWeather(weatherURL, postalCodeResult.code, postalCodeResult.country, date, weatherApiKey))
+        .then(postalCodeResult => getWeather(weatherURL,
+            postalCodeResult.code,
+            postalCodeResult.country,
+            getHistoricalDate(date),
+            weatherApiKey))
         .then(weatherResult => createTrip(baseURL, {
             city: city,
             postalCode: weatherResult.postalCode,
@@ -61,7 +65,7 @@ const getPostalCode = async (url, city, key) => {
 const getWeather = async (url, postalCode, country, date, key) => {
     const response = await fetch(url + key +
         "&start_date=" + date +
-        "&end_date=" + '2018-07-23' +
+        "&end_date=" + getOneDayLater(date) +
         "&postal_code=" + postalCode +
         "&country=" + country)
     try {
@@ -163,7 +167,7 @@ function getCurrentDate() {
 }
 
 function getCountdown(strDate){
-    return 1209 //TODO
+    return daysBetween(new Date(), parseDate(strDate))
 }
 
 // Print error
@@ -174,5 +178,35 @@ function internalError() {
 function error(msg) {
     alert(msg)
 }
+
+function parseDate(str) {
+    const date = str.split('-')
+    return new Date(date[0], date[1]-1, date[2])
+}
+
+/**
+*   Returns the date of the same day last year.
+**/
+function getHistoricalDate(str) {
+    const date = str.split('-')
+    const nowDate = new Date()
+    // The value returned by getYear is the current year minus 1900.
+    return new Date(nowDate.getYear()+1900-1, date[1]-1, date[2]).toISOString().split("T")[0]
+}
+
+/**
+*   Returns the date one day later.
+**/
+function getOneDayLater(str) {
+    const dateArr = str.split('-')
+    const date = new Date(dateArr[0], dateArr[1]-1, dateArr[2])
+    date.setDate(date.getDate() + 2);
+    return date.toISOString().split("T")[0]
+}
+
+function daysBetween(date1, date2) {
+    return Math.round((date2-date1)/(1000*60*60*24))
+}
+
 
 export { addTripClicked, init }
