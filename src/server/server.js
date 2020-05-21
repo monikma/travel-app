@@ -38,3 +38,9 @@ app.get('/trips', function(req, res) {
     console.log("Got GET request, returning " + JSON.stringify(trips));
     res.status(200).json(trips);
 });
+
+function dummyTest(){
+    return "Abc";
+}
+
+module.exports = { dummyTest }

@@ -1,3 +1,4 @@
+const dateUtils = require("./dateUtils")
 const countries = require("i18n-iso-countries")
 countries.registerLocale(require("i18n-iso-countries/langs/en.json"));
 
@@ -27,7 +28,7 @@ function addTrip(event) {
             postalCodeResult.code,
             postalCodeResult.countryCode,
             getHistoricalDate(date),
-            getOneDayLater(getHistoricalDate(date))))
+            dateUtils.getOneDayLater(dateUtils.getHistoricalDate(date))))
         .then(weatherResult => {
         return createTrip(baseURL, {
             city: city,
@@ -139,7 +140,7 @@ function error(msg) {
 }
 
 function getCountdown(strDate){
-    return daysBetween(new Date(), parseDate(strDate))
+    return dateUtils.daysBetween(new Date(), parseDate(strDate))
 }
 
 function parseDate(str) {
