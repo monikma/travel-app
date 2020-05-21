@@ -103,7 +103,12 @@ const updateUi = async (trips) => {
         tripCard.appendChild(date)
 
         const countdown = document.createElement("div")
-        countdown.innerHTML = "In " + getCountdown(data.date) + " days"
+        const count = getCountdown(data.date)
+        if (count>=0){
+            countdown.innerHTML = "In " + count + " days"
+        }else{
+            countdown.innerHTML = (-count) + " days ago"
+        }
         tripCard.appendChild(countdown)
 
         const city = document.createElement("div")
